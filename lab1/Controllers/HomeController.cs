@@ -1,4 +1,6 @@
 ﻿using lab1.Models;
+using lab1.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,10 +14,12 @@ namespace lab1.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IEmailSender _emailSender;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IEmailSender emailSender)
         {
             _logger = logger;
+            _emailSender = emailSender;
         }
 
         public IActionResult Index()
@@ -28,8 +32,22 @@ namespace lab1.Controllers
             return View();
         }
 
+        [HttpGet]
         public IActionResult Contact()
         {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Contact(Contact contact)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Error");
+            }
+
+            await _emailSender.SendEmailAsync(contact.Name, contact.Email, contact.Subject, contact.Message);
+
             return View();
         }
 

@@ -1,3 +1,4 @@
+using lab1.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using lab1.Services;
 
 namespace lab1
 {
@@ -24,6 +26,9 @@ namespace lab1
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            //Зареєструвати EmailSender сервіс в класі Startup (освоїти методи реєстрації Scoped, Transient,Singleton, їх відмінності).
+            services.AddSingleton<IEmailSender, EmailSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
