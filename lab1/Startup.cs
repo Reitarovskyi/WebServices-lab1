@@ -28,7 +28,7 @@ namespace lab1
             services.AddControllersWithViews();
 
             //Зареєструвати EmailSender сервіс в класі Startup (освоїти методи реєстрації Scoped, Transient,Singleton, їх відмінності).
-            services.AddSingleton<IEmailSender, EmailSender>();
+            services.AddScoped<IEmailSender, EmailSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
