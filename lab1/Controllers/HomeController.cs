@@ -47,6 +47,7 @@ namespace lab1.Controllers
             }
 
             await _emailSender.SendEmailAsync(contact.Name, contact.Email, contact.Subject, contact.Message);
+            _logger.LogInformation($"Contact email:{contact.Email}; [Message]{contact.Message}");
 
             return View();
         }

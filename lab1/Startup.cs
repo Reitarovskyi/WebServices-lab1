@@ -10,6 +10,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using lab1.Services;
+using InvertedSoftware.PLogger.Core;
+using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Pqc.Crypto.Ntru;
+using Microsoft.Extensions.DependencyModel.Resolution;
 
 namespace lab1
 {
@@ -26,13 +30,19 @@ namespace lab1
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-
-            //Зареєструвати EmailSender сервіс в класі Startup (освоїти методи реєстрації Scoped, Transient,Singleton, їх відмінності).
             services.AddScoped<IEmailSender, EmailSender>();
+
+            
+            var settings = new PLoggerSettings(Configuration);
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddPLogger(settings);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Program> logger)
         {
             if (env.IsDevelopment())
             {
@@ -48,8 +58,22 @@ namespace lab1
             app.UseStaticFiles();
 
             app.UseRouting();
-
             app.UseAuthorization();
+
+
+            app.Use(async (context, next) =>
+            {
+                var request = context.Request;
+                var ipAddress = context.Connection.RemoteIpAddress;
+                var requestTime = DateTime.Now;
+
+                var logMessage = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString} [:] " +
+                                 $"T:{requestTime}, " + $"IP:{ipAddress}";
+
+                logger.LogInformation(logMessage);
+
+                await next.Invoke();
+            });
 
             app.UseEndpoints(endpoints =>
             {
